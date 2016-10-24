@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="transparent">#00000000</color>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="general">#f6f6f6</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="red">#de1313</color>
+    <color name="yellow">#f5e401</color>
+    <color name="yellow_light">#fff9a2</color>
+    <color name="black">#333333</color>
+    <color name="white">#f6f6f6</color>
+    <color name="black_text">#2c2d28</color>
+    <color name="gray_text">#888888</color>
+    <color name="gray_text0560">#555555</color>
+    <color name="gray_text_light0560">#cecece</color>
+    <color name="gray_border">#e0e0e0</color>
+    <color name="blue_light">#d9efff</color>
+    <color name="green_light">#acdab5</color>
+    <color name="bluish">#576f9b</color>
+    <color name="bg_staff_more_line">#c1c1c1</color>
+    <color name="primaryTextColor">#444444</color>
+    <color name="primaryTextColorInverse">#F2F2F2</color>
+    <color name="primaryTextColorDisabled">#39000000</color>
+    <color name="secondaryTextColor">#bdbdbd</color>
+    <color name="secondaryTextColorDisabled">#24000000</color>
+    <color name="accentColor">#d30230</color>
+    <color name="primaryColor">#008ce3</color>
+    <color name="primaryColorDark">#01579b</color>
+    <color name="yellow_gray">#ccbf24</color>
+    <color name="colorPurple">#fc13bd</color>
+
+    <color name="btn_hidden">#dddddd</color>
+    <color name="color_header">#eeeeee</color>
+    <color name="color_header_menu">#666666</color>
+    <color name="top_request_group">#ededed</color>
+    <color name="top_request_btn_dark">#333333</color>
+    <color name="top_request_btn_light">#5d5c5c</color>
+    <color name="event_note">#2cdc14</color>
+    <color name="divider">#ededed</color>
+    <color name="top_header">#999999</color>
+</resources>

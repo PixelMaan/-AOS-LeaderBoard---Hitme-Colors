@@ -1,0 +1,21 @@
+<resources>
+    <string name="gps_network_not_enabled">Network is not enable.</string>
+    <string name="open_location_settings">OK</string>
+    <string name="appName">ProjTemplate</string>
+    <string name="appVersion">ProjTemplate %1$s</string>
+    <string name="cancel">Cancel</string>
+
+    // Error message
+    <string name="error_email_empty">Email can\'t empty.</string>
+    <string name="error_password_empty">Password can\'t empty.</string>
+    <string name="IMPLEMENT_YOURS_API">Please implement your API URL to use. :)</string>
+    <string name="error_can_not_connect_to_network">Can\'t connect to network.</string>
+    <string name="error_email_format">Email is invalid.</string>
+    <string name="str_app_slogan">The MVP design template for Android</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="sign_in">Sign In</string>
+    <string name="forgot_password">Forgot password</string>
+    <string name="app_version">App version</string>
+
+</resources>
