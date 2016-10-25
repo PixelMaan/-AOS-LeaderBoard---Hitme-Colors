@@ -11,6 +11,7 @@ import com.f5live.hitmecolors.common.base.BaseActivity;
 import com.f5live.hitmecolors.common.util.FontUtil;
 import com.f5live.hitmecolors.databinding.AActivitySplashBinding;
 import com.f5live.hitmecolors.feature.gameplay.view.GamePlayActivity;
+import com.f5live.hitmecolors.feature.home.view.HomeActivity;
 
 /**
  * Copyright © 2016 Neo-Lab Co.,Ltd.
@@ -27,7 +28,7 @@ public class SplashActivity extends BaseActivity {
         this.mRootView = DataBindingUtil.setContentView(this, R.layout.a_activity_splash);
         this.initViews();
         new Handler().postDelayed(() -> {
-            this.startActivity(new Intent(this, GamePlayActivity.class));
+            this.startActivity(new Intent(this, HomeActivity.class));
             this.finish();
         }, 2000);
     }

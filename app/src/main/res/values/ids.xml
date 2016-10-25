@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_id">394800239320</string>
+    <string name="package_name">com.f5live.hitmecolors</string>
+    <string name="achievement_hit_me_colors_level1">CgkI2KW2374LEAIQAA</string>
+    <string name="achievement_hit_me_colors_level2">CgkI2KW2374LEAIQAQ</string>
+    <string name="achievement_hit_me_colors_level3">CgkI2KW2374LEAIQAg</string>
+    <string name="leaderboard_hit_me_colors">CgkI2KW2374LEAIQAw</string>
+
+</resources>
