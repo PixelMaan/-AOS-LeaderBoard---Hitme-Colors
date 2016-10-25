@@ -4,6 +4,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/bg_game_play"
         android:padding="5dp">
 
         <RelativeLayout
@@ -48,6 +49,7 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:layout_marginTop="10dp"
+            android:background="@color/transparent"
             android:columnWidth="80dp"
             android:gravity="center"
             android:horizontalSpacing="5dp"

@@ -65,11 +65,65 @@ public class GamePlayActivity extends BaseActivity implements GamePlayView, Posi
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        if (mPlayer != null) {
+            mPlayer.stop();
+            mPlayer = null;
+        }
+
+        if (mBackgroundPlayer != null) {
+            mBackgroundPlayer.stop();
+            mBackgroundPlayer = null;
+        }
+
+        if (mTimer != null) {
+            mTimer.cancel();
+            mTimer = null;
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        this.loadGame();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (mPlayer != null) {
             mPlayer.stop();
             mPlayer = null;
+        }
+
+        if (mBackgroundPlayer != null) {
+            mBackgroundPlayer.stop();
+            mBackgroundPlayer = null;
+        }
+
+        if (mTimer != null) {
+            mTimer.cancel();
+            mTimer = null;
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (mPlayer != null) {
+            mPlayer.stop();
+            mPlayer = null;
+        }
+
+        if (mBackgroundPlayer != null) {
+            mBackgroundPlayer.stop();
+            mBackgroundPlayer = null;
+        }
+
+        if (mTimer != null) {
+            mTimer.cancel();
+            mTimer = null;
         }
     }
 
@@ -120,7 +174,7 @@ public class GamePlayActivity extends BaseActivity implements GamePlayView, Posi
         if (!isFinishing()) {
             this.mOverGame.show();
         }
-        this.mBackgroundPlayer.release();
+        this.mBackgroundPlayer.stop();
     }
 
     private void goHome(DialogOverGame overGame) {
