@@ -94,9 +94,9 @@ public class ImageAdapter extends BaseAdapter {
         Random rnd = new Random();
         mOriginColor = Color.argb(255, rnd.nextInt(256), rnd.nextInt(200),
                 rnd.nextInt(256));
-        int alpha = 255, red = rnd.nextInt(256), green = rnd.nextInt(200), blue = rnd
-                .nextInt(200);
-        int dGreen = green + 10, dBlue = blue + 20;
+        int alpha = 255, red = rnd.nextInt(256), green = rnd.nextInt(50), blue = rnd
+                .nextInt(256);
+        int dGreen = green - 10, dBlue = blue - 20;
 
         mOriginColor = Color.argb(alpha, red, green, blue);
         mDifferentColor = Color.argb(alpha, red, dGreen, dBlue);

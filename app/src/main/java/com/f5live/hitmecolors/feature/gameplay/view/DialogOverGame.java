@@ -1,10 +1,9 @@
-package com.f5live.hitmecolors.common.view;
+package com.f5live.hitmecolors.feature.gameplay.view;
 
 import android.app.Dialog;
 import android.content.Context;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.f5live.hitmecolors.R;
@@ -32,10 +31,10 @@ public class DialogOverGame extends Dialog {
     }
 
     private DialogOverGame initView() {
-        ((TextView) findViewById(R.id.txtScore)).setText(String.valueOf("Score: " + PreUtil.getInt(Constant.SCORE)));
+        ((TextView) findViewById(R.id.txtScore)).setText(String.valueOf("" + PreUtil.getInt(Constant.SCORE)));
         ((TextView) findViewById(R.id.txtScore)).setTypeface(FontUtil.getFontType(getContext()));
 
-        ((TextView) findViewById(R.id.txtBest)).setText(String.valueOf("Best: " + PreUtil.getBest()));
+        ((TextView) findViewById(R.id.txtBest)).setText(String.valueOf("" + PreUtil.getBest()));
         ((TextView) findViewById(R.id.txtBest)).setTypeface(FontUtil.getFontType(getContext()));
 
         return this;

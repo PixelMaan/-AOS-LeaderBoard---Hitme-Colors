@@ -10,7 +10,6 @@ import com.f5live.hitmecolors.common.base.BaseActivity;
 import com.f5live.hitmecolors.common.util.Constant;
 import com.f5live.hitmecolors.common.util.MediaUtil;
 import com.f5live.hitmecolors.common.util.PreUtil;
-import com.f5live.hitmecolors.common.view.DialogOverGame;
 import com.f5live.hitmecolors.databinding.AActivityGamePlayBinding;
 import com.f5live.hitmecolors.feature.gameplay.presenter.PositionListener;
 
@@ -28,11 +27,13 @@ public class GamePlayActivity extends BaseActivity implements GamePlayView, Posi
     private AActivityGamePlayBinding mRootView;
     private CountDownTimer mTimer;
     private DialogOverGame mOverGame;
+    boolean isSoundOff;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.mRootView = DataBindingUtil.setContentView(this, R.layout.a_activity_game_play);
+        isSoundOff = PreUtil.getBoolean(Constant.SOUND_OFF, false);
 
         this.loadGame();
 
@@ -132,7 +133,7 @@ public class GamePlayActivity extends BaseActivity implements GamePlayView, Posi
             mScore++;
             this.mRootView.gamePlayTvScore.setText(String.valueOf(mScore));
             mPlayer = MediaUtil.create(this, R.raw.point);
-            if (mPlayer != null) {
+            if (!isSoundOff && mPlayer != null) {
                 mPlayer.start();
             }
             PreUtil.putInt(Constant.SCORE, this.mScore);
@@ -151,17 +152,19 @@ public class GamePlayActivity extends BaseActivity implements GamePlayView, Posi
         countTime();
         mPlayer = MediaUtil.create(
                 GamePlayActivity.this, R.raw.pop);
-        if (mPlayer != null) {
+        if (!isSoundOff && mPlayer != null) {
             mPlayer.start();
         }
         mRootView.gamePlayTvScore.setText(String.valueOf(mScore));
-        this.loadBackgroundPlayer();
+        this.playBackgroundSound();
     }
 
     private void gameOver() {
-        this.mTimer.cancel();
+        if (this.mTimer != null) {
+            this.mTimer.cancel();
+        }
         mPlayer = MediaUtil.create(GamePlayActivity.this, R.raw.failed);
-        if (mPlayer != null) {
+        if (!isSoundOff && mPlayer != null) {
             mPlayer.start();
         }
 
@@ -174,7 +177,7 @@ public class GamePlayActivity extends BaseActivity implements GamePlayView, Posi
         if (!isFinishing()) {
             this.mOverGame.show();
         }
-        this.mBackgroundPlayer.stop();
+        this.stopBackgroundSound();
     }
 
     private void goHome(DialogOverGame overGame) {
@@ -184,11 +187,17 @@ public class GamePlayActivity extends BaseActivity implements GamePlayView, Posi
         onBackPressed();
     }
 
-    private void loadBackgroundPlayer() {
-        this.mBackgroundPlayer = MediaUtil.create(
-                GamePlayActivity.this, R.raw.background);
-        if (mBackgroundPlayer != null) {
+
+    private void playBackgroundSound() {
+        this.mBackgroundPlayer = MediaUtil.create(this, R.raw.background);
+        if (!isSoundOff && mBackgroundPlayer != null) {
             mBackgroundPlayer.start();
+        }
+    }
+
+    private void stopBackgroundSound() {
+        if (mBackgroundPlayer != null) {
+            this.mBackgroundPlayer.stop();
         }
     }
 }

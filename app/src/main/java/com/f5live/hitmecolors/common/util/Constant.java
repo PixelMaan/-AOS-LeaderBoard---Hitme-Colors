@@ -10,4 +10,5 @@ public class Constant {
 
     public static final String SCORE = "SCORE";
     public static final String BEST_SCORE = "BEST_SCORE";
+    public static final String SOUND_OFF = "SOUND_OFF";
 }

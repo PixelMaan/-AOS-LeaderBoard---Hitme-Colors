@@ -2,6 +2,7 @@ package com.f5live.hitmecolors.feature.home.view;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,7 +11,12 @@ import android.widget.Toast;
 
 import com.f5live.hitmecolors.R;
 import com.f5live.hitmecolors.common.base.BaseActivity;
+import com.f5live.hitmecolors.common.util.Constant;
+import com.f5live.hitmecolors.common.util.FontUtil;
+import com.f5live.hitmecolors.common.util.MediaUtil;
+import com.f5live.hitmecolors.common.util.PreUtil;
 import com.f5live.hitmecolors.databinding.AActivityHomeBinding;
+import com.f5live.hitmecolors.feature.gameplay.view.GamePlayActivity;
 import com.f5live.hitmecolors.feature.home.presenter.HomeViewPersenterImpl;
 import com.f5live.hitmecolors.feature.home.presenter.HomeViewPresenter;
 import com.f5live.hitmecolors.gamehelper.BaseGameUtils;
@@ -42,48 +48,82 @@ public class HomeActivity extends BaseActivity implements HomeView
     // Set to true to automatically start the sign in flow when the Activity starts.
     // Set to false to require the user to click the button in order to sign in.
     private boolean mAutoStartSignInFlow = true;
+    private MediaPlayer mBackgroundPlayer;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.initGoogleApiClient();
+        // this.initGoogleApiClient();
         this.mRootView = DataBindingUtil.setContentView(this, R.layout.a_activity_home);
         this.mPresenter = new HomeViewPersenterImpl(this, this);
         this.initViews();
-        this.initGoogleApiClient();
     }
 
 
     @Override
     protected void onStart() {
         super.onStart();
-        mGoogleApiClient.connect();
+//        mGoogleApiClient.connect();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.disconnect();
-        }
+//        if (mGoogleApiClient.isConnected()) {
+//            mGoogleApiClient.disconnect();
+//        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        this.stopBackgroundSound();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        playBackgroundSound();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        this.stopBackgroundSound();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        this.stopBackgroundSound();
     }
 
     private void initViews() {
-        this.mRootView.homeBtnLeaderBoard.setOnClickListener(view -> {
-            Toast.makeText(this, "Is Enable: " + (this.mGoogleApiClient != null
-                    && this.mGoogleApiClient.isConnected()), Toast.LENGTH_SHORT).show();
-            BaseGameUtils.showAlert(this, getString(R.string.you_won));
-            if (mGoogleApiClient.isConnected()) {
-                // unlock the "Trivial Victory" achievement.
-                Games.Achievements.unlock(mGoogleApiClient,
-                        getString(R.string.victory));
-            }
+//        Toast.makeText(this, "Is Enable: " + (this.mGoogleApiClient != null
+//                && this.mGoogleApiClient.isConnected()), Toast.LENGTH_SHORT).show();
+//        BaseGameUtils.showAlert(this, getString(R.string.you_won));
+//        if (mGoogleApiClient.isConnected()) {
+//            // unlock the "Trivial Victory" achievement.
+//            Games.Achievements.unlock(mGoogleApiClient,
+//                    getString(R.string.victory));
+//        }
+
+        this.mRootView.homeTitle.setTypeface(FontUtil.getFontType(this));
+
+        this.mRootView.homeBtnSound.setOnClickListener(view
+                -> this.checkSoundOnOff(false));
+
+        this.mRootView.homeBtnLeaderBoard.setOnClickListener(view
+                -> this.onSignIn());
+
+        this.mRootView.homeBtnStart.setOnClickListener(view
+                -> {
+            this.startActivity(new Intent(this, GamePlayActivity.class));
+            stopBackgroundSound();
         });
 
-        this.mRootView.homeBtnSignIn.setOnClickListener(view -> {
-            this.onSignIn();
-        });
+        this.checkSoundOnOff(true);
     }
 
     private void initGoogleApiClient() {
@@ -158,10 +198,46 @@ public class HomeActivity extends BaseActivity implements HomeView
             if (responseCode == RESULT_OK) {
                 mGoogleApiClient.connect();
             } else {
-                BaseGameUtils.showActivityResultError(this,requestCode,responseCode, R.string.signin_other_error);
+                BaseGameUtils.showActivityResultError(this, requestCode, responseCode, R.string.signin_other_error);
             }
         }
     }
 
+    private void handleSound(boolean isOn) {
+        if (isOn) {
+            this.playBackgroundSound();
+        } else {
+            this.stopBackgroundSound();
+        }
+    }
 
+    private void playBackgroundSound() {
+        this.mBackgroundPlayer = MediaUtil.create(this, R.raw.background);
+        if (mBackgroundPlayer != null) {
+            mBackgroundPlayer.start();
+        }
+
+    }
+
+    private void stopBackgroundSound() {
+        if (mBackgroundPlayer != null) {
+            this.mBackgroundPlayer.release();
+            this.mBackgroundPlayer = null;
+        }
+    }
+
+    private void checkSoundOnOff(boolean isLoadingGame) {
+        boolean isSoundOff = PreUtil.getBoolean(Constant.SOUND_OFF, false);
+        if (isSoundOff) {
+            this.mRootView.homeBtnSound.setBackgroundResource(R.drawable.btn_sound_on);
+        } else {
+            this.mRootView.homeBtnSound.setBackgroundResource(R.drawable.btn_sound_off);
+        }
+        PreUtil.putBoolean(Constant.SOUND_OFF, !isSoundOff);
+        if (isLoadingGame) {
+            this.handleSound(isSoundOff);
+            return;
+        }
+        this.handleSound(!isSoundOff);
+    }
 }
