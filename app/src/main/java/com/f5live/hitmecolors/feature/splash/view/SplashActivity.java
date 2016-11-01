@@ -33,9 +33,6 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void initViews() {
-        this.mRootView.splashTvAppName.setText(this.getResources().getString(R.string.appName));
-        this.mRootView.splashTvAppName.setTypeface(FontUtil.getFontType(this));
-
         this.mRootView.splashTvAppSlogan.setText(this.getResources().getString(R.string.str_app_slogan));
         this.mRootView.splashTvAppSlogan.setTypeface(FontUtil.getFontType(this));
     }

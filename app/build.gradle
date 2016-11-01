@@ -81,7 +81,7 @@ android {
             buildConfigField "String", "ENVIROMENT", "\"Production\""
         }
         Develop {
-            applicationId 'com.f5live.hitmecolors.develop'
+            applicationId 'com.f5live.hitmecolors'
             versionCode 1
             versionName "Dev.1.0.1"
             resValue 'string', 'app_name', 'Dev Hit me! Colors'
