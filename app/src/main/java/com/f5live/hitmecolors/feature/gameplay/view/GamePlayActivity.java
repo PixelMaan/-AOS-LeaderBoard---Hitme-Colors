@@ -2,14 +2,16 @@ package com.f5live.hitmecolors.feature.gameplay.view;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.media.MediaPlayer;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 
 import com.f5live.hitmecolors.R;
 import com.f5live.hitmecolors.common.util.Constant;
 import com.f5live.hitmecolors.common.util.FontUtil;
-import com.f5live.hitmecolors.common.util.MediaUtil;
 import com.f5live.hitmecolors.common.util.PreUtil;
 import com.f5live.hitmecolors.databinding.AActivityGamePlayBinding;
 import com.f5live.hitmecolors.feature.gameplay.presenter.PositionListener;
@@ -24,20 +26,30 @@ import com.google.android.gms.games.Games;
 public class GamePlayActivity extends BaseGameActivity implements GamePlayView, PositionListener {
 
     private int mSelectAt;
-    private MediaPlayer mPlayer;
-    private MediaPlayer mBackgroundPlayer;
     private int mScore = 0;
     private AActivityGamePlayBinding mRootView;
     private CountDownTimer mTimer;
     private DialogOverGame mOverGame;
     boolean isSoundOff;
 
+    private SoundPool soundPool;
+    private static final int MAX_STREAMS = 5;
+    private static final int streamType = AudioManager.STREAM_MUSIC;
+    private boolean loaded;
+    private int backgroundSound;
+    private int correctSound;
+    private int wrongSound;
+    private int startSound;
+    private float volume;
+    private int backgroundSoundId;
+    private boolean mBackGroupPlayed;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.mRootView = DataBindingUtil.setContentView(this, R.layout.a_activity_game_play);
         isSoundOff = PreUtil.getBoolean(Constant.SOUND_OFF, false);
-
+        initSoundPool();
         this.loadGame();
 
         this.mRootView.gamePlayGrv.setOnItemClickListener((parent, v, position, id)
@@ -71,15 +83,6 @@ public class GamePlayActivity extends BaseGameActivity implements GamePlayView, 
     @Override
     protected void onPause() {
         super.onPause();
-        if (mPlayer != null) {
-            mPlayer.stop();
-            mPlayer = null;
-        }
-
-        if (mBackgroundPlayer != null) {
-            mBackgroundPlayer.stop();
-            mBackgroundPlayer = null;
-        }
 
         if (mTimer != null) {
             mTimer.cancel();
@@ -96,15 +99,6 @@ public class GamePlayActivity extends BaseGameActivity implements GamePlayView, 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mPlayer != null) {
-            mPlayer.stop();
-            mPlayer = null;
-        }
-
-        if (mBackgroundPlayer != null) {
-            mBackgroundPlayer.stop();
-            mBackgroundPlayer = null;
-        }
 
         if (mTimer != null) {
             mTimer.cancel();
@@ -115,15 +109,6 @@ public class GamePlayActivity extends BaseGameActivity implements GamePlayView, 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        if (mPlayer != null) {
-            mPlayer.stop();
-            mPlayer = null;
-        }
-
-        if (mBackgroundPlayer != null) {
-            mBackgroundPlayer.stop();
-            mBackgroundPlayer = null;
-        }
 
         if (mTimer != null) {
             mTimer.cancel();
@@ -138,17 +123,13 @@ public class GamePlayActivity extends BaseGameActivity implements GamePlayView, 
 
     @Override
     public void onSignInSucceeded() {
-
     }
 
     private void onHitColor(int position) {
         if (position == mSelectAt) {
             mScore++;
             this.mRootView.gamePlayTvScore.setText(String.valueOf(mScore));
-            mPlayer = MediaUtil.create(this, R.raw.point);
-            if (!isSoundOff && mPlayer != null) {
-                mPlayer.start();
-            }
+            this.playSoundEffect(this.correctSound);
             PreUtil.putInt(Constant.SCORE, this.mScore);
             fetchAdapter();
             mTimer.cancel();
@@ -163,11 +144,7 @@ public class GamePlayActivity extends BaseGameActivity implements GamePlayView, 
         PreUtil.putInt(Constant.SCORE, 0);
         mScore = 0;
         countTime();
-        mPlayer = MediaUtil.create(
-                GamePlayActivity.this, R.raw.pop);
-        if (!isSoundOff && mPlayer != null) {
-            mPlayer.start();
-        }
+        this.playSoundEffect(this.startSound);
         mRootView.gamePlayTvScore.setText(String.valueOf(mScore));
 
         // set type face
@@ -181,10 +158,7 @@ public class GamePlayActivity extends BaseGameActivity implements GamePlayView, 
         if (this.mTimer != null) {
             this.mTimer.cancel();
         }
-        mPlayer = MediaUtil.create(GamePlayActivity.this, R.raw.failed);
-        if (!isSoundOff && mPlayer != null) {
-            mPlayer.start();
-        }
+        this.playSoundEffect(this.wrongSound);
 
         if (this.mOverGame != null && this.mOverGame.isShowing()) {
             return;
@@ -212,64 +186,122 @@ public class GamePlayActivity extends BaseGameActivity implements GamePlayView, 
     }
 
 
-    private void playBackgroundSound() {
-        this.mBackgroundPlayer = MediaUtil.create(this, R.raw.background);
-        if (!isSoundOff && mBackgroundPlayer != null) {
-            mBackgroundPlayer.start();
-        }
-    }
-
-    private void stopBackgroundSound() {
-        if (mBackgroundPlayer != null) {
-            this.mBackgroundPlayer.stop();
-        }
-    }
-
     private void checkAchievement() {
         int score = PreUtil.getInt(Constant.SCORE);
+        if (score < PreUtil.getBest()) {
+            return;
+        }
         if (score >= 50) {
-            Games.Achievements.unlock(getGameHelper().getApiClient()
+            Games.Achievements.unlock(getApiClient()
                     , String.valueOf(R.string.achievement_hit_me_colors_level5));
-            Games.setViewForPopups(getGameHelper().getApiClient(), mRootView.getRoot());
             return;
         }
 
         if (score >= 20) {
-            Games.Achievements.unlock(getGameHelper().getApiClient()
+            Games.Achievements.unlock(getApiClient()
                     , String.valueOf(R.string.achievement_hit_me_colors_level4));
-            Games.setViewForPopups(getGameHelper().getApiClient(), mRootView.getRoot());
             return;
         }
 
         if (score >= 15) {
-            Games.Achievements.unlock(getGameHelper().getApiClient()
+            Games.Achievements.unlock(getApiClient()
                     , String.valueOf(R.string.achievement_hit_me_colors_level3));
-            Games.setViewForPopups(getGameHelper().getApiClient(), mRootView.getRoot());
             return;
         }
 
         if (score >= 10) {
-            Games.Achievements.unlock(getGameHelper().getApiClient()
+            Games.Achievements.unlock(getApiClient()
                     , String.valueOf(R.string.achievement_hit_me_colors_level2));
-            Games.setViewForPopups(getGameHelper().getApiClient(), mRootView.getRoot());
             return;
         }
 
         if (score >= 5) {
-            Games.Achievements.unlock(getGameHelper().getApiClient()
+            Games.Achievements.unlock(getApiClient()
                     , String.valueOf(R.string.achievement_hit_me_colors_level1));
-            Games.setViewForPopups(getGameHelper().getApiClient()
-                    , mRootView.getRoot());
         }
     }
 
     private void postCurrentScores() {
-        Games.Leaderboards.submitScore(getGameHelper().getApiClient()
+        Games.Leaderboards.submitScore(getApiClient()
                 , String.valueOf(R.string.leader_board_id), PreUtil.getInt(Constant.SCORE));
     }
+
 
     @Override
     protected void onActivityResult(int request, int response, Intent data) {
         super.onActivityResult(request, response, data);
+        startActivityForResult(Games.Achievements.getAchievementsIntent(getApiClient()),
+                100);
+    }
+
+
+    private void initSoundPool() {
+        // AudioManager audio settings for adjusting the volume
+        AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+        // Current volumn Index of particular stream type.
+        float currentVolumeIndex = (float) audioManager.getStreamVolume(streamType);
+        // Get the maximum volume index for a particular stream type.
+        float maxVolumeIndex = (float) audioManager.getStreamMaxVolume(streamType);
+        // Volumn (0 --> 1)
+        this.volume = currentVolumeIndex / maxVolumeIndex;
+        // Suggests an audio stream whose volume should be changed by
+        // the hardware volume controls.
+        this.setVolumeControlStream(streamType);
+
+        // For Android SDK >= 21
+        if (Build.VERSION.SDK_INT >= 21) {
+
+            AudioAttributes audioAttrib = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_GAME)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build();
+
+            SoundPool.Builder builder = new SoundPool.Builder();
+            builder.setAudioAttributes(audioAttrib).setMaxStreams(MAX_STREAMS);
+
+            this.soundPool = builder.build();
+        }
+        // for Android SDK < 21
+        else {
+            // SoundPool(int maxStreams, int streamType, int srcQuality)
+            this.soundPool = new SoundPool(MAX_STREAMS, AudioManager.STREAM_MUSIC, 0);
+        }
+
+        this.backgroundSound = this.soundPool.load(this, R.raw.background, 1);
+        this.correctSound = this.soundPool.load(this, R.raw.point, 1);
+        this.wrongSound = this.soundPool.load(this, R.raw.failed, 1);
+        this.startSound = this.soundPool.load(this, R.raw.pop, 1);
+
+        // When Sound Pool load complete.
+        this.soundPool.setOnLoadCompleteListener((soundPool1, sampleId, status) -> {
+            loaded = true;
+            playBackgroundSound();
+        });
+
+    }
+
+    public void playBackgroundSound() {
+        if (loaded && !mBackGroupPlayed) {
+            float leftVolumn = volume;
+            float rightVolumn = volume;
+            // Play sound of gunfire. Returns the ID of the new stream.
+            backgroundSoundId = this.soundPool.play(this.backgroundSound, leftVolumn, rightVolumn, 1, -1, 1f);
+            mBackGroupPlayed = true;
+        }
+    }
+
+    public void stopBackgroundSound() {
+        if (this.soundPool == null) return;
+        this.soundPool.stop(backgroundSoundId);
+        this.backgroundSound = this.soundPool.load(this, R.raw.background, 1);
+        mBackGroupPlayed = false;
+    }
+
+    public void playSoundEffect(int soundId) {
+        if (loaded) {
+            float leftVolumn = volume;
+            float rightVolumn = volume;
+            this.soundPool.play(soundId, leftVolumn, rightVolumn, 1, 0, 1f);
+        }
     }
 }
