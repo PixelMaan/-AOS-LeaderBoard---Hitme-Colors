@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,13 +37,11 @@ public class GamePlayActivity extends BaseGameActivity implements GamePlayView, 
     private static final int MAX_STREAMS = 5;
     private static final int streamType = AudioManager.STREAM_MUSIC;
     private boolean loaded;
-    private int backgroundSound;
     private int correctSound;
     private int wrongSound;
     private int startSound;
     private float volume;
-    private int backgroundSoundId;
-    private boolean mBackGroupPlayed;
+    private MediaPlayer mp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,12 +71,18 @@ public class GamePlayActivity extends BaseGameActivity implements GamePlayView, 
     }
 
     public void countTime() {
+        if (mTimer != null) {
+            mTimer.start();
+            return;
+        }
+
         mTimer = new CountDownTimer(10000, 1000) {
             public void onTick(long millisUntilFinished) {
                 mRootView.gamePlayTvTime.setText(String.valueOf(millisUntilFinished / 1000));
             }
 
             public void onFinish() {
+                mRootView.gamePlayTvTime.setText("0");
                 gameOver();
             }
         };
@@ -92,6 +97,8 @@ public class GamePlayActivity extends BaseGameActivity implements GamePlayView, 
             mTimer.cancel();
             mTimer = null;
         }
+
+        this.stopBackgroundSound();
     }
 
     @Override
@@ -108,6 +115,8 @@ public class GamePlayActivity extends BaseGameActivity implements GamePlayView, 
             mTimer.cancel();
             mTimer = null;
         }
+
+        this.destroyBackgroundSound();
     }
 
     @Override
@@ -118,7 +127,10 @@ public class GamePlayActivity extends BaseGameActivity implements GamePlayView, 
             mTimer.cancel();
             mTimer = null;
         }
+
+        this.stopBackgroundSound();
     }
+
 
     @Override
     public void onSignInFailed() {
@@ -130,6 +142,7 @@ public class GamePlayActivity extends BaseGameActivity implements GamePlayView, 
     }
 
     private void onHitColor(int position) {
+        this.countTime();
         if (position == mSelectAt) {
             mScore++;
             this.mRootView.gamePlayTvScore.setText(String.valueOf(mScore));
@@ -147,7 +160,6 @@ public class GamePlayActivity extends BaseGameActivity implements GamePlayView, 
         fetchAdapter();
         PreUtil.putInt(Constant.SCORE, 0);
         mScore = 0;
-        countTime();
         this.playSoundEffect(this.startSound);
         mRootView.gamePlayTvScore.setText(String.valueOf(mScore));
 
@@ -271,37 +283,36 @@ public class GamePlayActivity extends BaseGameActivity implements GamePlayView, 
             this.soundPool = new SoundPool(MAX_STREAMS, AudioManager.STREAM_MUSIC, 0);
         }
 
-        this.backgroundSound = this.soundPool.load(this, R.raw.background, 1);
-        this.correctSound = this.soundPool.load(this, R.raw.point, 1);
-        this.wrongSound = this.soundPool.load(this, R.raw.failed, 1);
-        this.startSound = this.soundPool.load(this, R.raw.pop, 1);
-
         // When Sound Pool load complete.
         this.soundPool.setOnLoadCompleteListener((soundPool1, sampleId, status) -> {
             loaded = true;
             playBackgroundSound();
         });
 
+        this.correctSound = this.soundPool.load(this, R.raw.point, 1);
+        this.wrongSound = this.soundPool.load(this, R.raw.failed, 1);
+        this.startSound = this.soundPool.load(this, R.raw.pop, 1);
     }
 
-    public void playBackgroundSound() {
-        if (loaded && !mBackGroupPlayed) {
-            float leftVolumn = volume;
-            float rightVolumn = volume;
-            // Play sound of gunfire. Returns the ID of the new stream.
-            backgroundSoundId = this.soundPool.play(this.backgroundSound, leftVolumn, rightVolumn, 1, -1, 1f);
-            mBackGroupPlayed = true;
+    private void playBackgroundSound() {
+        mp = MediaPlayer.create(getApplicationContext(), R.raw.game_play);
+        mp.start();
+        mp.setLooping(true);
+    }
+
+    private void stopBackgroundSound() {
+        if (mp != null) {
+            mp.stop();
         }
     }
 
-    public void stopBackgroundSound() {
-        if (this.soundPool == null) return;
-        this.soundPool.stop(backgroundSoundId);
-        this.backgroundSound = this.soundPool.load(this, R.raw.background, 1);
-        mBackGroupPlayed = false;
+    private void destroyBackgroundSound() {
+        if (mp != null) {
+            mp.release();
+        }
     }
 
-    public void playSoundEffect(int soundId) {
+    private void playSoundEffect(int soundId) {
         if (loaded) {
             float leftVolumn = volume;
             float rightVolumn = volume;

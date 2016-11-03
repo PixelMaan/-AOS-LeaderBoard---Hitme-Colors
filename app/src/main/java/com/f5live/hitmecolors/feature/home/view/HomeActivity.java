@@ -274,7 +274,7 @@ public class HomeActivity extends BaseGameActivity {
         }
 
         // Load sound file (destroy.wav) into SoundPool.
-        this.soundBackground = this.soundPool.load(this, R.raw.background, 1);
+        this.soundBackground = this.soundPool.load(this, R.raw.background_music, 1);
 
         // Load sound file (gun.wav) into SoundPool.
         int soundShake = this.soundPool.load(this, R.raw.shake_sound, 1);

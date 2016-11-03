@@ -96,21 +96,21 @@ public class DialogOverGame extends Dialog {
         super.dismiss();
     }
 
-    public DialogOverGame setOnCancel(OnCancel onCancel) {
+    DialogOverGame setOnCancel(OnCancel onCancel) {
         this.onCancel = onCancel;
         return this;
     }
 
-    public DialogOverGame setOnDiscard(OnDiscard onDiscard) {
+    DialogOverGame setOnDiscard(OnDiscard onDiscard) {
         this.onDiscard = onDiscard;
         return this;
     }
 
-    public interface OnCancel {
+    interface OnCancel {
         void onClick();
     }
 
-    public interface OnDiscard {
+    interface OnDiscard {
         void onClick();
     }
 }
