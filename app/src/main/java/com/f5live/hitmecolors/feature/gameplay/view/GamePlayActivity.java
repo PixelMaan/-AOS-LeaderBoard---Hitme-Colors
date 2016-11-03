@@ -48,10 +48,14 @@ public class GamePlayActivity extends BaseGameActivity implements GamePlayView, 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.mRootView = DataBindingUtil.setContentView(this, R.layout.a_activity_game_play);
-        isSoundOff = PreUtil.getBoolean(Constant.SOUND_OFF, false);
-        initSoundPool();
-        this.loadGame();
+        this.isSoundOff = PreUtil.getBoolean(Constant.SOUND_OFF, false);
 
+        this.initViews();
+        this.initSoundPool();
+        this.loadGame();
+    }
+
+    private void initViews() {
         this.mRootView.gamePlayGrv.setOnItemClickListener((parent, v, position, id)
                 -> this.onHitColor(position));
     }
@@ -163,19 +167,19 @@ public class GamePlayActivity extends BaseGameActivity implements GamePlayView, 
         if (this.mOverGame != null && this.mOverGame.isShowing()) {
             return;
         }
-//        this.mOverGame = new DialogOverGame(this);
-//        this.mOverGame.setOnCancel(this::loadGame);
-//        this.mOverGame.setOnDiscard(() -> this.goHome(this.mOverGame));
-//        if (!isFinishing()) {
-//            this.mOverGame.show();
-//        }
+        this.mOverGame = new DialogOverGame(this);
+        this.mOverGame.setOnCancel(this::loadGame);
+        this.mOverGame.setOnDiscard(() -> this.goHome(this.mOverGame));
+        if (!isFinishing()) {
+            this.mOverGame.show();
+        }
         this.stopBackgroundSound();
 
         // get current achievements
-        this.checkAchievement();
+        //this.checkAchievement();
 
         // post current score to leader board
-        this.postCurrentScores();
+        //this.postCurrentScores();
     }
 
     private void goHome(DialogOverGame overGame) {
@@ -223,7 +227,7 @@ public class GamePlayActivity extends BaseGameActivity implements GamePlayView, 
 
     private void postCurrentScores() {
         Games.Leaderboards.submitScore(getApiClient()
-                , String.valueOf(R.string.leader_board_id), PreUtil.getInt(Constant.SCORE));
+                , String.valueOf(R.string.leaderboard_hit_me__colors), PreUtil.getInt(Constant.SCORE));
     }
 
 

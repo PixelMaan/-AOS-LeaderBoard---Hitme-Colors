@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources  translatable="false">
     <string name="app_id">394800239320</string>
-    <string name="leader_board_id">CgkI2KW2374LEAIQAw</string>
     <string name="package_name">com.f5live.hitmecolors</string>
     <string name="achievement_hit_me_colors_level1">CgkI2KW2374LEAIQAA</string>
     <string name="achievement_hit_me_colors_level2">CgkI2KW2374LEAIQAQ</string>
